@@ -5,6 +5,7 @@ project(Projeto_SO VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 qt_standard_project_setup(REQUIRES 6.10)
 
@@ -16,6 +17,11 @@ qt_add_qml_module(appProjeto_SO
     URI Projeto_SO
     QML_FILES
         Main.qml
+        SOURCES
+SOURCES mainwindow.h mainwindow.cpp
+RESOURCES mainwindow.ui
+SOURCES csvreader.cpp
+SOURCES csvreader.h
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -32,6 +38,7 @@ set_target_properties(appProjeto_SO PROPERTIES
 target_link_libraries(appProjeto_SO
     PRIVATE Qt6::Quick
 )
+target_link_libraries(appProjeto_SO PRIVATE Qt6::Widgets)
 
 install(TARGETS appProjeto_SO
     BUNDLE DESTINATION .
