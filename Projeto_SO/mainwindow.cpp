@@ -1,6 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "csvreader.h"
+#include "scheduler.h"
+#include "memory.h"
+#include "report.h"
+#include "reportwindow.h"
+#include <QFileDialog>
+#include <QFileInfo>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -48,8 +54,10 @@ void MainWindow::on_buttonSelecionaCSV_clicked()
         );
 
     if (!caminho.isEmpty()) {
-        ui->labelArquivo->setText(caminho); // mostra o caminho na tela
-        ui->buttonIniciar->setEnabled(1);
+        caminhoCSV = caminho;
+        processos = lerCSV(caminho.toStdString());
+        ui->labelArquivo->setText(QFileInfo(caminho).fileName());
+        ui->buttonIniciar->setEnabled(true);
     }
 }
 
@@ -58,5 +66,45 @@ void MainWindow::on_comboAlgoritmo_currentIndexChanged(int index)
 {
     ui->spinQuantum->setVisible(index == 0);
     ui->labelQuantum->setVisible(index == 0);
+}
+
+
+void MainWindow::on_buttonIniciar_clicked()
+{
+    // 1. lê configurações da interface
+    int memFisica  = ui->spinMemFisica->value();
+    int memVirtual = ui->spinMemVirtual->value();
+    int tamPagina  = ui->comboTamanhoPaginacao->currentText().toInt();
+    int algoritmo  = ui->comboAlgoritmo->currentIndex();
+    int politica   = ui->comboPoliticaPaginacao->currentIndex();
+    int quantum    = ui->spinQuantum->value();
+
+    // 2. cria o gerenciador de memória
+    GerenciadorMemoria memoria(memFisica, tamPagina);
+
+    // 3. cria o scheduler
+    Scheduler scheduler(processos, &memoria, quantum, politica);
+
+    // 4. executa o algoritmo selecionado
+    if (algoritmo == 0){
+        scheduler.executarRoundRobin();
+    } else if (algoritmo == 1) {
+        scheduler.executarSJF();
+    } else{
+        scheduler.executarPrioridade();
+    }
+
+    // 5. gera o relatório
+    Report report(
+        scheduler.finalizados,
+        scheduler.calcularTempoMedioEspera(),
+        scheduler.calcularTempoMedioResposta(),
+        memoria.pageFaults
+        );
+
+    // 6. abre a janela de relatório
+    ReportWindow* rw = new ReportWindow(this);
+    rw->exibirRelatorio(report);
+    rw->show();
 }
 

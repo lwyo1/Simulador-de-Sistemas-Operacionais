@@ -288,22 +288,22 @@
     </property>
     <item>
      <property name="text">
-      <string>4 KB</string>
+      <string>4</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>8 KB</string>
+      <string>8</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>16 KB</string>
+      <string>16</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>32 KB</string>
+      <string>32</string>
      </property>
     </item>
    </widget>
@@ -312,12 +312,12 @@
      <rect>
       <x>480</x>
       <y>410</y>
-      <width>231</width>
+      <width>251</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>Selecione o tamanho de pagina</string>
+     <string>Selecione o tamanho de pagina (KB)</string>
     </property>
    </widget>
   </widget>

@@ -22,7 +22,7 @@ vector<Processo> lerCSV(const string& caminho){
         getline(ss, campo, ','); p.tempoChegada     = stoi(campo);
         getline(ss, campo, ','); p.tempoExecucao    = stoi(campo);
         getline(ss, campo, ','); p.prioridade       = stoi(campo);
-        getline(ss, campo, ','); p.memoriaNeccessaria = stoi(campo);
+        getline(ss, campo, ','); p.memoriaNecessaria = stoi(campo);
         //Lê até a próxima vírgula, guarda em campo como string, e stoi converte para inteiro.
 
         processos.push_back(p);

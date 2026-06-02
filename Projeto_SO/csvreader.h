@@ -1,17 +1,12 @@
 #ifndef CSVREADER_H
 #define CSVREADER_H
 
+#include "process.h"
 #include <vector>
 #include <string>
 
-struct Processo {
-    int id;
-    int tempoChegada;
-    int tempoExecucao;
-    int prioridade;
-    int memoriaNeccessaria;
-};
+using namespace std;
 
-std::vector<Processo> lerCSV(const std::string& caminho);
+vector<Processo> lerCSV(const string& caminho);
 
 #endif // CSVREADER_H
