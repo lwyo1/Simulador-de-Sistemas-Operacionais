@@ -17,4 +17,10 @@ struct Processo {
     bool iniciou;         // já executou pelo menos uma vez?
 };
 
+struct Intervalo {
+    int inicio;
+    int fim;
+    int idProcesso;
+};
+
 #endif // PROCESS_H

@@ -97,6 +97,7 @@ void MainWindow::on_buttonIniciar_clicked()
     // 5. gera o relatório
     Report report(
         scheduler.finalizados,
+        scheduler.linhaDoTempo,
         scheduler.calcularTempoMedioEspera(),
         scheduler.calcularTempoMedioResposta(),
         memoria.pageFaults

@@ -23,6 +23,7 @@ Scheduler::Scheduler(vector<Processo>& procs, GerenciadorMemoria* mem, int q, in
 }
 
 void Scheduler::executarRoundRobin() {
+    vector<int> acessosFuturos = gerarAcessosFuturos();
     queue<Processo*> fila;
     int concluidos = 0;
 
@@ -57,10 +58,21 @@ void Scheduler::executarRoundRobin() {
         // executa por quantum ou pelo tempo restante
         int executar = min(quantum, p->tempoRestante);
 
+        // registra o intervalo antes do loop de execução
+        int inicioExecucao = tempoAtual;
+
         // avança tempo unidade por unidade para detectar chegadas durante execução
         for (int i = 0; i < executar; i++) {
             tempoAtual++;
             p->tempoRestante--;
+
+            // atualiza ultimo acesso dos frames do processo em execução
+            for (auto& f : memoria->frames) {
+                if (f.idProcesso == p->id) {
+                    f.ultimoAcesso = tempoAtual;
+                }
+            }
+
 
             // verifica novos processos que chegaram durante a execução
             for (auto& proc : processos) {
@@ -72,6 +84,9 @@ void Scheduler::executarRoundRobin() {
                 }
             }
         }
+
+        // registra após o loop
+        linhaDoTempo.push_back({inicioExecucao, tempoAtual, p->id});
 
         // verifica se terminou
         if (p->tempoRestante == 0) {
@@ -89,6 +104,7 @@ void Scheduler::executarRoundRobin() {
 
 
 void Scheduler::executarSJF() {
+    vector<int> acessosFuturos = gerarAcessosFuturos();
     vector<Processo*> prontos; //Vetor de ponteiros para processos que já chegaram e estão prontos para executar.
     int concluidos = 0;
 
@@ -127,9 +143,19 @@ void Scheduler::executarSJF() {
             p->iniciou = true;
         }
 
+        int inicioExecucao = tempoAtual;
         // executa 1 unidade de tempo (preemptivo)
         p->tempoRestante--;
         tempoAtual++;
+
+        linhaDoTempo.push_back({inicioExecucao, tempoAtual, p->id});
+
+        // atualiza ultimo acesso dos frames do processo em execução
+        for (auto& f : memoria->frames) {
+            if (f.idProcesso == p->id) {
+                f.ultimoAcesso = tempoAtual;
+            }
+        }
 
         // verifica se terminou
         //Se o processo terminou, registra o tempo final, calcula quanto ficou esperando, libera a memória, move para finalizados e remove da fila de prontos.
@@ -147,6 +173,7 @@ void Scheduler::executarSJF() {
 
 //Praticamente igual ao SJF, só muda o sort
 void Scheduler::executarPrioridade() {
+    vector<int> acessosFuturos = gerarAcessosFuturos();
     vector<Processo*> prontos;
     int concluidos = 0;
 
@@ -180,9 +207,20 @@ void Scheduler::executarPrioridade() {
             p->iniciou = true;
         }
 
+        int inicioExecucao = tempoAtual;
+
         // executa 1 unidade de tempo (preemptivo)
         p->tempoRestante--;
         tempoAtual++;
+
+        linhaDoTempo.push_back({inicioExecucao, tempoAtual, p->id});
+
+        // atualiza ultimo acesso dos frames do processo em execução
+        for (auto& f : memoria->frames) {
+            if (f.idProcesso == p->id) {
+                f.ultimoAcesso = tempoAtual;
+            }
+        }
 
         if (p->tempoRestante == 0) {
             p->tempoFim = tempoAtual;
@@ -209,4 +247,21 @@ float Scheduler::calcularTempoMedioResposta() {
         total += p.tempoResposta;
     }
     return total / finalizados.size();
+}
+
+vector<int> Scheduler::gerarAcessosFuturos() {
+    vector<int> acessos;
+
+    // simula a ordem de execução dos processos
+    // cada unidade de tempo o processo acessa suas páginas
+    for (auto& p : processos) {
+        int paginasNecessarias = ceil((float)(p.memoriaNecessaria * 1024) / (float)memoria->tamanhoPagina);
+        for (int t = p.tempoChegada; t < p.tempoChegada + p.tempoExecucao; t++) {
+            for (int pag = 0; pag < paginasNecessarias; pag++) {
+                acessos.push_back(pag);
+            }
+        }
+    }
+
+    return acessos;
 }

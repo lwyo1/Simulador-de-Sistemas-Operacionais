@@ -1,15 +1,18 @@
 #include "report.h"
 #include <sstream>
 
-Report::Report(std::vector<Processo>& procs, float tmEspera, float tmResposta, int pf) {
+using namespace std;
+
+Report::Report(vector<Processo>& procs, vector<Intervalo>& ldt,float tmEspera, float tmResposta, int pf) {
     finalizados = procs;
+    linhaDoTempo = ldt;
     tempoMedioEspera = tmEspera;
     tempoMedioResposta = tmResposta;
     pageFaults = pf;
 }
 
-std::string Report::gerarRelatorio() {
-    std::ostringstream ss;
+string Report::gerarRelatorio() {
+    ostringstream ss;
 
     ss << "=== RELATÓRIO FINAL ===\n\n";
 
@@ -32,6 +35,12 @@ std::string Report::gerarRelatorio() {
     ss << "Tempo Médio de Espera:    " << tempoMedioEspera   << "\n";
     ss << "Tempo Médio de Resposta:  " << tempoMedioResposta << "\n";
     ss << "Total de Page Faults:     " << pageFaults         << "\n";
+
+    ss << "\nLINHA DO TEMPO:\n";
+    for (auto& i : linhaDoTempo) {
+        ss << "P" << i.idProcesso << "[" << i.inicio << "-" << i.fim << "] ";
+    }
+    ss << "\n";
 
     return ss.str();
 }

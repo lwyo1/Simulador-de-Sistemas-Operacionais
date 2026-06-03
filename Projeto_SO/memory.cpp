@@ -60,13 +60,10 @@ TabelaPaginas* GerenciadorMemoria::buscarTabela(int idProcesso) {
 
 //FIFO — remove o frame mais antigo
 int GerenciadorMemoria::substituirFIFO() {
-    // retorna o índice do frame mais antigo (primeiro que entrou)
-    for (int i = 0; i < framesTotal; i++) {
-        if (!frames[i].livre) {
-            return i; // o primeiro ocupado é o mais antigo
-        }
-    }
-    return 0;
+    // pega o frame mais antigo (primeiro que entrou) e remove da fila
+    int frame = filaFIFO.front();
+    filaFIFO.pop();
+    return frame;
 }
 
 //LRU — remove o frame usado há mais tempo
@@ -132,12 +129,13 @@ bool GerenciadorMemoria::carregarProcesso(Processo& p, int politica, int tempoAt
                 frames[j].livre = false;
                 frames[j].idProcesso = p.id;
                 frames[j].paginaCarregada = i;
-
+                frames[j].ultimoAcesso = tempoAtual;
                 //atualiza a tabela de paginas
                 tabela->frames[i] = j;
 
                 framesLivres--;
                 alocou = true;
+                filaFIFO.push(j); // ← registra a ordem de entrada
                 break;
             }
         }
@@ -153,9 +151,32 @@ bool GerenciadorMemoria::carregarProcesso(Processo& p, int politica, int tempoAt
                 frameLiberar = substituirLRU(tempoAtual);
 
             } else {
-            frameLiberar = substituirOtimo(tempoAtual, acessosFuturos);
+                frameLiberar = substituirOtimo(tempoAtual, acessosFuturos);
             }
+
+            // remove a página antiga da tabela do processo que estava usando esse frame
+            for(auto& t : tabelaPaginas){
+                for(auto& f : t.frames){
+                    if(f == frameLiberar){
+                        f = -1; // marca como não carregada
+                        break;
+                    }
+                }
+            }
+
+            // aloca o frame para o novo processo
+            frames[frameLiberar].livre = false;
+            frames[frameLiberar].idProcesso = p.id;
+            frames[frameLiberar].paginaCarregada = i;
+            frames[frameLiberar].ultimoAcesso = tempoAtual;
+
+            // atualiza a tabela do processo atual
+            tabela->frames[i] = frameLiberar;
+
+            filaFIFO.push(frameLiberar); // ← novo frame entra no fim da fila
         }
+
+
     }
 
     return true;

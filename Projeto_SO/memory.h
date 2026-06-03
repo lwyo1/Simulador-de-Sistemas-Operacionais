@@ -3,6 +3,8 @@
 
 #include "process.h"
 #include <vector>
+#include <queue>
+#include <cmath>
 
 using namespace std;
 
@@ -47,6 +49,9 @@ public:
     int substituirFIFO();
     int substituirLRU(int tempoAtual);
     int substituirOtimo(int paginaAtual, vector<int>& acessosFuturos);
+
+    //armazena os processos na fila
+    queue<int> filaFIFO;
 };
 
 

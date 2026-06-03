@@ -2,19 +2,23 @@
 #define REPORT_H
 
 #include "process.h"
+#include "scheduler.h"
 #include <vector>
 #include <string>
 
+using namespace std;
+
 class Report {
 public:
-    std::vector<Processo> finalizados;
+    vector<Processo> finalizados;
+    vector<Intervalo> linhaDoTempo;
     float tempoMedioEspera;
     float tempoMedioResposta;
     int pageFaults;
 
-    Report(std::vector<Processo>& finalizados, float tmEspera, float tmResposta, int pageFaults);
+    Report(vector<Processo>& procs, vector<Intervalo>& ldt,float tmEspera, float tmResposta, int pf);
 
-    std::string gerarRelatorio();
+    string gerarRelatorio();
 };
 
 #endif // REPORT_H

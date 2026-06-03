@@ -29,6 +29,9 @@ public:
     // métricas
     float calcularTempoMedioEspera();
     float calcularTempoMedioResposta();
+
+    vector<int> gerarAcessosFuturos();
+    vector<Intervalo> linhaDoTempo;
 };
 
 
