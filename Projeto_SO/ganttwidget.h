@@ -18,6 +18,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
     vector<Intervalo> intervalos;

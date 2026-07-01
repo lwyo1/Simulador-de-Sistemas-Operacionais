@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QScrollArea* scroll = new QScrollArea();
     scroll->setWidget(gantt);
-    scroll->setWidgetResizable(false);
+    scroll->setWidgetResizable(true);
     scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     scroll->setMinimumHeight(250);
@@ -115,7 +115,12 @@ void MainWindow::on_buttonIniciar_clicked()
         scheduler.executarPrioridade();
     }
 
-    atualizarProgressoMemoria(memoria.framesMaxUsados, memoria.framesTotal);
+    atualizarProgressoMemoria(
+        memoria.framesMaxUsados,
+        memoria.framesTotal,
+        memoria.memoriaVirtualUsada,
+        memoria.tamanhoMemoriaVirtual
+        );
 
     // 5. gera o relatório
     Report report(
@@ -124,7 +129,9 @@ void MainWindow::on_buttonIniciar_clicked()
         scheduler.calcularTempoMedioEspera(),
         scheduler.calcularTempoMedioResposta(),
         memoria.pageFaults,
-        memoria.totalPaginasExpulsas
+        memoria.totalPaginasExpulsas,
+        memoria.memoriaVirtualUsada,
+        memoria.tamanhoMemoriaVirtual
         );
 
     // 6. exibe relatório
@@ -145,6 +152,7 @@ void MainWindow::on_buttonNovaSim_clicked()
     ui->labelArquivo->setText("Nenhum arquivo selecionado");
     ui->buttonIniciar->setEnabled(false);
     ui->btnExportar->setEnabled(false);
+    ui->progressMemoria->reset();
     ui->textRelatorio->clear();
     gantt->setDados(vazio, 0);
     ui->widgetGantt->setVisible(false);
@@ -156,10 +164,18 @@ void MainWindow::on_buttonNovaSim_clicked()
     ui->spinQuantum->setValue(2);
 }
 
-void MainWindow::atualizarProgressoMemoria(int framesUsados, int framesTotal) {
-    int percentual = (int)((float)framesUsados / framesTotal * 100);
-    ui->progressMemoria->setValue(percentual);
-    ui->progressMemoria->setFormat(QString("%1%").arg(percentual));
+void MainWindow::atualizarProgressoMemoria(int framesUsados, int framesTotal, int memVirtualUsada, int memVirtualTotal) {
+    // física
+    int percentualFisica = (int)((float)framesUsados / framesTotal * 100);
+    ui->progressMemoria->setValue(percentualFisica);
+    ui->progressMemoria->setFormat(QString("%1%").arg(percentualFisica));
+
+    // virtual
+    int percentualVirtual = memVirtualTotal > 0
+                                ? (int)((float)memVirtualUsada / (memVirtualTotal * 1024) * 100)
+                                : 0;
+    ui->progressMemVirtual->setValue(percentualVirtual);
+    ui->progressMemVirtual->setFormat(QString("%1%").arg(percentualVirtual));
 }
 
 

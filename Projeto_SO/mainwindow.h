@@ -23,7 +23,7 @@ private slots:
     void on_spinMemFisica_valueChanged(int arg1);
     void on_buttonSelecionaCSV_clicked();
     void on_comboAlgoritmo_currentIndexChanged(int index);
-    void atualizarProgressoMemoria(int framesUsados, int framesTotal);
+    void atualizarProgressoMemoria(int framesUsados, int framesTotal, int memVirtualUsada, int memVirtualTotal);
     void exibirRelatorio(Report& report);
 
     void on_buttonIniciar_clicked();

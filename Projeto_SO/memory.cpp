@@ -1,6 +1,5 @@
 #include "memory.h"
 #include <cmath>
-#include "QDebug"
 
 using namespace std;
 
@@ -120,7 +119,6 @@ bool GerenciadorMemoria::carregarProcesso(Processo& p, int politica, int tempoAt
 
     // evita carregar o mesmo processo duas vezes
     if (buscarTabela(p.id) != nullptr) return true;
-    qDebug() << "Carregando processo" << p.id << "frames livres:" << framesLivres;
 
     //Cria a tabela de páginas do processo
     criarTabelaPaginas(p);
@@ -159,8 +157,6 @@ bool GerenciadorMemoria::carregarProcesso(Processo& p, int politica, int tempoAt
         //nao alocou frame livre = page fault
         if(!alocou){
             pageFaults++;
-            qDebug() << "PAGE FAULT processo" << p.id << "página" << i
-                     << "framesLivres:" << framesLivres;
             //Vamos utilizar as tecnicas de liberaçao de frames
             int frameLiberar;
             if(politica == 0){
@@ -181,7 +177,6 @@ bool GerenciadorMemoria::carregarProcesso(Processo& p, int politica, int tempoAt
             memoriaVirtualUsada += tamanhoPagina;
 
             totalPaginasExpulsas++;
-            qDebug() << "Expulsando - totalPaginasExpulsas agora:" << totalPaginasExpulsas;
 
             // remove a página antiga da tabela do processo que estava usando esse frame
             for(auto& t : tabelaPaginas){
