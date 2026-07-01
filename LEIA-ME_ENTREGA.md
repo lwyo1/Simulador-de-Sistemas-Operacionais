@@ -57,16 +57,25 @@ Simulador de Sistemas Operacionais desenvolvido em C++ com interface gráfica Qt
 ---
 
 ## Estrutura do Projeto
+```text
+.
 ├── main.cpp              # Inicialização da aplicação Qt
-├── mainwindow.h/.cpp     # Interface principal e controle da simulação
+├── mainwindow.h
+├── mainwindow.cpp        # Interface principal e controle da simulação
 ├── mainwindow.ui         # Layout da interface
 ├── process.h             # Struct Processo e Intervalo
-├── csvreader.h/.cpp      # Leitura e validação do arquivo CSV
-├── memory.h/.cpp         # Gerenciamento de memória, frames e substituição
-├── scheduler.h/.cpp      # Algoritmos de escalonamento
-├── report.h/.cpp         # Geração do relatório final
-├── ganttwidget.h/.cpp    # Diagrama de Gantt customizado
-└── CMakeLists.txt        # Configuração de build
+├── csvreader.h
+├── csvreader.cpp         # Leitura e validação do arquivo CSV
+├── memory.h
+├── memory.cpp            # Gerenciamento de memória e paginação
+├── scheduler.h
+├── scheduler.cpp         # Algoritmos de escalonamento
+├── report.h
+├── report.cpp            # Geração do relatório final
+├── ganttwidget.h
+├── ganttwidget.cpp       # Diagrama de Gantt
+└── CMakeLists.txt        # Configuração do projeto
+```
 
 ---
 
