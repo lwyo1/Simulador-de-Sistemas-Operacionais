@@ -3,9 +3,11 @@
 
 using namespace std;
 
-GerenciadorMemoria::GerenciadorMemoria(int memoriaFisicaMB, int tamanhoPaginaKB) {
+GerenciadorMemoria::GerenciadorMemoria(int memoriaFisicaMB, int tamanhoPaginaKB, int memoriaVirtualMB) {
     tamanhoPagina = tamanhoPaginaKB;
     pageFaults = 0;
+    totalPaginasExpulsas = 0;
+    framesMaxUsados = 0;
 
     // calcula total de frames
     int memoriaFisicaKB = memoriaFisicaMB * 1024;
@@ -29,6 +31,9 @@ GerenciadorMemoria::GerenciadorMemoria(int memoriaFisicaMB, int tamanhoPaginaKB)
         f.paginaCarregada = -1;
         f.idProcesso = -1;
     }
+
+    tamanhoMemoriaVirtual = memoriaVirtualMB;
+    memoriaVirtualUsada = 0;
 }
 
 int GerenciadorMemoria::contarFramesLivres() {
@@ -136,6 +141,12 @@ bool GerenciadorMemoria::carregarProcesso(Processo& p, int politica, int tempoAt
                 framesLivres--;
                 alocou = true;
                 filaFIFO.push(j); // ← registra a ordem de entrada
+
+                int framesUsados = framesTotal - framesLivres;
+                if(framesUsados > framesMaxUsados) {
+                    framesMaxUsados = framesUsados;
+                }
+
                 break;
             }
         }
@@ -153,6 +164,14 @@ bool GerenciadorMemoria::carregarProcesso(Processo& p, int politica, int tempoAt
             } else {
                 frameLiberar = substituirOtimo(tempoAtual, acessosFuturos);
             }
+
+            // página expulsa vai para memória virtual
+            PaginaVirtual pv;
+            pv.idProcesso = frames[frameLiberar].idProcesso;
+            pv.indicePagina = frames[frameLiberar].paginaCarregada;
+            memoriaVirtual.push_back(pv);
+            memoriaVirtualUsada += tamanhoPagina;
+            totalPaginasExpulsas++;
 
             // remove a página antiga da tabela do processo que estava usando esse frame
             for(auto& t : tabelaPaginas){

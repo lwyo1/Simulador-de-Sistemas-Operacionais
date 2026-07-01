@@ -3,12 +3,13 @@
 
 using namespace std;
 
-Report::Report(vector<Processo>& procs, vector<Intervalo>& ldt,float tmEspera, float tmResposta, int pf) {
+Report::Report(vector<Processo>& procs, vector<Intervalo>& ldt,float tmEspera, float tmResposta, int pf, int paginasNaVirtual) {
     finalizados = procs;
     linhaDoTempo = ldt;
     tempoMedioEspera = tmEspera;
     tempoMedioResposta = tmResposta;
     pageFaults = pf;
+    paginasNaVirtual = paginasNaVirtual;
 }
 
 string Report::gerarRelatorio() {
@@ -35,6 +36,7 @@ string Report::gerarRelatorio() {
     ss << "Tempo Médio de Espera:    " << tempoMedioEspera   << "\n";
     ss << "Tempo Médio de Resposta:  " << tempoMedioResposta << "\n";
     ss << "Total de Page Faults:     " << pageFaults         << "\n";
+    ss << "Páginas expulsas para Virtual: " << paginasNaVirtual << "\n";
 
     ss << "\nLINHA DO TEMPO:\n";
     for (auto& i : linhaDoTempo) {

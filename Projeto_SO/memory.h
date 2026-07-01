@@ -20,18 +20,26 @@ struct TabelaPaginas {
     vector<int> frames; // índice = página, valor = frame alocado
 };
 
+struct PaginaVirtual {
+    int idProcesso;
+    int indicePagina;
+};
+
 class GerenciadorMemoria {
 public:
     int framesTotal;
     int framesLivres;
+    int framesMaxUsados;
     int pageFaults;
     int tamanhoPagina; // em KB
+    int totalPaginasExpulsas; // conta todas as expulsões, não só as atuais
+
 
     vector<Frame> frames;
     vector<TabelaPaginas> tabelaPaginas;
 
     //construtor
-    GerenciadorMemoria(int memoriaFisicaMB, int tamanhoPaginaKB);
+    GerenciadorMemoria(int memoriaFisicaMB, int tamanhoPaginaKB, int memoriaVirtualMB);
 
     //Frames
     int contarFramesLivres();
@@ -52,6 +60,11 @@ public:
 
     //armazena os processos na fila
     queue<int> filaFIFO;
+
+    //memoria virtual
+    vector<PaginaVirtual> memoriaVirtual; // páginas expulsas da física
+    int tamanhoMemoriaVirtual; // em MB
+    int memoriaVirtualUsada;   // em KB
 };
 
 

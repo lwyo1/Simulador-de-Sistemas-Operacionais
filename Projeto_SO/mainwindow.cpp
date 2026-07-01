@@ -4,9 +4,10 @@
 #include "scheduler.h"
 #include "memory.h"
 #include "report.h"
-#include "reportwindow.h"
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QMessageBox>
+#include <fstream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -47,17 +48,20 @@ void MainWindow::on_spinMemVirtual_valueChanged(int arg1)
 void MainWindow::on_buttonSelecionaCSV_clicked()
 {
     QString caminho = QFileDialog::getOpenFileName(
-        this,
-        "Selecione o CSV de processos",   // título
-        "",                          // diretório inicial
-        "CSV Files (*.csv)"          // filtro
+        this, "Selecione o CSV de processos", "", "CSV Files (*.csv)"
         );
 
     if (!caminho.isEmpty()) {
-        caminhoCSV = caminho;
-        processos = lerCSV(caminho.toStdString());
-        ui->labelArquivo->setText(QFileInfo(caminho).fileName());
-        ui->buttonIniciar->setEnabled(true);
+        try{
+            caminhoCSV = caminho;
+            processos = lerCSV(caminho.toStdString());
+            ui->labelArquivo->setText(QFileInfo(caminho).fileName());
+            ui->buttonIniciar->setEnabled(true);
+        }catch(const exception& e) {
+            QMessageBox::critical(this, "Erro ao carregar CSV", QString::fromStdString(e.what()));
+            ui->buttonIniciar->setEnabled(false);
+        }
+
     }
 }
 
@@ -71,6 +75,7 @@ void MainWindow::on_comboAlgoritmo_currentIndexChanged(int index)
 
 void MainWindow::on_buttonIniciar_clicked()
 {
+
     // 1. lê configurações da interface
     int memFisica  = ui->spinMemFisica->value();
     int memVirtual = ui->spinMemVirtual->value();
@@ -80,7 +85,7 @@ void MainWindow::on_buttonIniciar_clicked()
     int quantum    = ui->spinQuantum->value();
 
     // 2. cria o gerenciador de memória
-    GerenciadorMemoria memoria(memFisica, tamPagina);
+    GerenciadorMemoria memoria(memFisica, tamPagina, memVirtual);
 
     // 3. cria o scheduler
     Scheduler scheduler(processos, &memoria, quantum, politica);
@@ -94,18 +99,80 @@ void MainWindow::on_buttonIniciar_clicked()
         scheduler.executarPrioridade();
     }
 
+    atualizarProgressoMemoria(memoria.framesMaxUsados, memoria.framesTotal);
+
     // 5. gera o relatório
     Report report(
         scheduler.finalizados,
         scheduler.linhaDoTempo,
         scheduler.calcularTempoMedioEspera(),
         scheduler.calcularTempoMedioResposta(),
-        memoria.pageFaults
+        memoria.pageFaults,
+        memoria.totalPaginasExpulsas
         );
 
-    // 6. abre a janela de relatório
-    ReportWindow* rw = new ReportWindow(this);
-    rw->exibirRelatorio(report);
-    rw->show();
+    // 6. exibe relatório
+    exibirRelatorio(report);
+}
+
+
+void MainWindow::on_buttonNovaSim_clicked()
+{
+    // limpa os dados
+    processos.clear();
+    caminhoCSV = "";
+
+    vector<Intervalo> vazio;
+
+    // reseta a interface
+    ui->labelArquivo->setText("Nenhum arquivo selecionado");
+    ui->buttonIniciar->setEnabled(false);
+    ui->btnExportar->setEnabled(false);
+    ui->textRelatorio->clear();
+    ui->widgetGantt->setDados(vazio, 0);
+    ui->widgetGantt->setVisible(false);
+    ui->spinMemFisica->setValue(512);
+    ui->spinMemVirtual->setValue(1024);
+    ui->comboAlgoritmo->setCurrentIndex(0);
+    ui->comboPoliticaPaginacao->setCurrentIndex(0);
+    ui->comboTamanhoPaginacao->setCurrentIndex(0);
+    ui->spinQuantum->setValue(2);
+}
+
+void MainWindow::atualizarProgressoMemoria(int framesUsados, int framesTotal) {
+    int percentual = (int)((float)framesUsados / framesTotal * 100);
+    ui->progressMemoria->setValue(percentual);
+    ui->progressMemoria->setFormat(QString("%1%").arg(percentual));
+}
+
+
+void MainWindow::exibirRelatorio(Report& report) {
+    QString texto = QString::fromStdString(report.gerarRelatorio());
+    ui->textRelatorio->setText(texto);
+    ui->textRelatorio->setVisible(true);
+    ui->btnExportar->setEnabled(true);
+    ui->widgetGantt->setVisible(true);
+    ui->widgetGantt->setDados(report.linhaDoTempo, report.finalizados.size());
+}
+void MainWindow::on_btnExportar_clicked()
+{
+    QString caminho = QFileDialog::getSaveFileName(
+        this,
+        "Salvar Relatório",
+        "relatorio.txt",
+        "Text Files (*.txt)"
+        );
+
+    if (!caminho.isEmpty()) {
+        ofstream arquivo(caminho.toStdString());
+
+        if (arquivo.is_open()) {
+            arquivo << ui->textRelatorio->toPlainText().toStdString();
+            arquivo.close();
+            QMessageBox::information(this, "Sucesso", "Relatório exportado com sucesso!");
+        } else {
+            QMessageBox::critical(this, "Erro", "Não foi possível salvar o arquivo.");
+        }
+    }
 }
 

@@ -15,8 +15,9 @@ public:
     float tempoMedioEspera;
     float tempoMedioResposta;
     int pageFaults;
+    int paginasNaVirtual;
 
-    Report(vector<Processo>& procs, vector<Intervalo>& ldt,float tmEspera, float tmResposta, int pf);
+    Report(vector<Processo>& procs, vector<Intervalo>& ldt,float tmEspera, float tmResposta, int pf, int paginasNaVirtual);
 
     string gerarRelatorio();
 };
