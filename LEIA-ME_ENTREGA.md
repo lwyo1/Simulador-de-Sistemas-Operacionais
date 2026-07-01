@@ -17,6 +17,10 @@ Simulador de Sistemas Operacionais desenvolvido em C++ com interface gráfica Qt
 
 ---
 
+## Objetivo
+
+Desenvolver um simulador didático de Sistemas Operacionais capaz de demonstrar o funcionamento de algoritmos de escalonamento de processos e gerenciamento de memória virtual por paginação, permitindo visualizar o comportamento do sistema por meio de uma interface gráfica.
+
 ## Funcionalidades Implementadas
 
 ### Interface Gráfica
@@ -121,5 +125,9 @@ cmake --build .
 
 ## Dependências
 
-- Qt6::Widgets
-- C++ Standard Library (vector, queue, algorithm, fstream, sstream, cmath)
+- Qt 6.x
+- CMake 3.16+
+- Compilador compatível com C++17
+  - MinGW
+  - MSVC
+  - GCC
