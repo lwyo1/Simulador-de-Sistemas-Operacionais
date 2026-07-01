@@ -5,6 +5,7 @@
 #include <QPainter>
 #include "process.h"
 #include <vector>
+#include <QScrollArea>
 
 using namespace std;
 

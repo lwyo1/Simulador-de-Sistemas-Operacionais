@@ -14,6 +14,22 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    showMaximized();
+
+    // cria o GanttWidget e o ScrollArea
+    gantt = new GanttWidget();
+
+    QScrollArea* scroll = new QScrollArea();
+    scroll->setWidget(gantt);
+    scroll->setWidgetResizable(false);
+    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scroll->setMinimumHeight(250);
+
+    // substitui o widgetGantt no layout pelo scroll
+    QLayout* layoutPai = ui->widgetGantt->parentWidget()->layout();
+    layoutPai->replaceWidget(ui->widgetGantt, scroll);
+    ui->widgetGantt->hide();
 }
 
 MainWindow::~MainWindow()
@@ -75,7 +91,7 @@ void MainWindow::on_comboAlgoritmo_currentIndexChanged(int index)
 
 void MainWindow::on_buttonIniciar_clicked()
 {
-
+    ui->buttonSelecionaCSV->setEnabled(false);
     // 1. lê configurações da interface
     int memFisica  = ui->spinMemFisica->value();
     int memVirtual = ui->spinMemVirtual->value();
@@ -125,11 +141,12 @@ void MainWindow::on_buttonNovaSim_clicked()
     vector<Intervalo> vazio;
 
     // reseta a interface
+    ui->buttonSelecionaCSV->setEnabled(true);
     ui->labelArquivo->setText("Nenhum arquivo selecionado");
     ui->buttonIniciar->setEnabled(false);
     ui->btnExportar->setEnabled(false);
     ui->textRelatorio->clear();
-    ui->widgetGantt->setDados(vazio, 0);
+    gantt->setDados(vazio, 0);
     ui->widgetGantt->setVisible(false);
     ui->spinMemFisica->setValue(512);
     ui->spinMemVirtual->setValue(1024);
@@ -152,7 +169,7 @@ void MainWindow::exibirRelatorio(Report& report) {
     ui->textRelatorio->setVisible(true);
     ui->btnExportar->setEnabled(true);
     ui->widgetGantt->setVisible(true);
-    ui->widgetGantt->setDados(report.linhaDoTempo, report.finalizados.size());
+    gantt->setDados(report.linhaDoTempo, report.finalizados.size());
 }
 void MainWindow::on_btnExportar_clicked()
 {

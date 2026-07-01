@@ -33,9 +33,9 @@ void Scheduler::executarRoundRobin() {
         // adiciona processos que chegaram até o tempoAtual
         for (auto& p : processos) {
             if (p.tempoChegada == tempoAtual && !p.iniciou) {
+                p.iniciou = true; // marca aqui para não readicionar na fila
                 vector<int> acessosFuturos;
                 memoria->carregarProcesso(p, politica, tempoAtual, acessosFuturos);
-                p.iniciou = true; // marca aqui para não readicionar na fila
                 fila.push(&p);
             }
         }
@@ -77,9 +77,9 @@ void Scheduler::executarRoundRobin() {
             // verifica novos processos que chegaram durante a execução
             for (auto& proc : processos) {
                 if (proc.tempoChegada == tempoAtual && !proc.iniciou) {
+                    proc.iniciou = true;
                     vector<int> acessosFuturos;
                     memoria->carregarProcesso(proc, politica, tempoAtual, acessosFuturos);
-                    proc.iniciou = true;
                     fila.push(&proc);
                 }
             }
@@ -116,6 +116,7 @@ void Scheduler::executarSJF() {
             if (p.tempoChegada == tempoAtual && !p.iniciou && find(prontos.begin(), prontos.end(), &p) == prontos.end()) {//Percorre todos os processos e adiciona na fila de prontos os que chegaram agora.
                                                                                                                           //O !p.iniciou evita readicionar processos que já estão rodando. O find evita duplicatas no vetor.
                 //Carrega o processo na memória e adiciona no vetor de prontos.
+                p.iniciou = true;
                 vector<int> acessosFuturos;
                 memoria->carregarProcesso(p, politica, tempoAtual, acessosFuturos);
                 prontos.push_back(&p);
@@ -137,10 +138,9 @@ void Scheduler::executarSJF() {
         Processo* p = prontos.front();
 
         // Se é a primeira vez que esse processo executa, registra quando começou e calcula o tempo de resposta.
-        if (!p->iniciou) {
+        if (p->tempoInicio == -1) {
             p->tempoInicio = tempoAtual;
             p->tempoResposta = tempoAtual - p->tempoChegada;
-            p->iniciou = true;
         }
 
         int inicioExecucao = tempoAtual;
@@ -183,6 +183,7 @@ void Scheduler::executarPrioridade() {
         for (auto& p : processos) {
             if (p.tempoChegada == tempoAtual && !p.iniciou &&
                 find(prontos.begin(), prontos.end(), &p) == prontos.end()) {
+                p.iniciou = true;
                 vector<int> acessosFuturos;
                 memoria->carregarProcesso(p, politica, tempoAtual, acessosFuturos);
                 prontos.push_back(&p);
@@ -201,10 +202,9 @@ void Scheduler::executarPrioridade() {
 
         Processo* p = prontos.front();
 
-        if (!p->iniciou) {
+        if (p->tempoInicio == -1) {
             p->tempoInicio = tempoAtual;
             p->tempoResposta = tempoAtual - p->tempoChegada;
-            p->iniciou = true;
         }
 
         int inicioExecucao = tempoAtual;

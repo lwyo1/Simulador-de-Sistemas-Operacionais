@@ -7,6 +7,18 @@ GanttWidget::GanttWidget(QWidget *parent) : QWidget(parent) {
 void GanttWidget::setDados(vector<Intervalo>& ivs, int total) {
     intervalos = ivs;
     totalProcessos = total;
+
+    // redimensiona o widget conforme o tempo total
+    if (!intervalos.empty()) {
+        int tempoMax = 0;
+        for (auto& iv : intervalos) {
+            if (iv.fim > tempoMax) tempoMax = iv.fim;
+        }
+        // largura mínima de 800px ou 40px por unidade de tempo
+        setMinimumWidth(max(800, tempoMax * 40));
+        setMinimumHeight(totalProcessos * 60 + 80);
+    }
+
     update(); // força redesenho
 }
 

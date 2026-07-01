@@ -3,13 +3,13 @@
 
 using namespace std;
 
-Report::Report(vector<Processo>& procs, vector<Intervalo>& ldt,float tmEspera, float tmResposta, int pf, int paginasNaVirtual) {
+Report::Report(vector<Processo>& procs, vector<Intervalo>& ldt,float tmEspera, float tmResposta, int pf, int pnv) {
     finalizados = procs;
     linhaDoTempo = ldt;
     tempoMedioEspera = tmEspera;
     tempoMedioResposta = tmResposta;
     pageFaults = pf;
-    paginasNaVirtual = paginasNaVirtual;
+    paginasNaVirtual = pnv;
 }
 
 string Report::gerarRelatorio() {

@@ -36,6 +36,7 @@ private:
     Ui::MainWindow *ui;
     std::vector<Processo> processos;
     QString caminhoCSV;
+    GanttWidget* gantt;
 };
 
 #endif
